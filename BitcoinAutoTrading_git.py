@@ -61,7 +61,7 @@ print("autotrade start")    # 날짜가 바뀌면 매일 아침 시작 알림 �
 post_message(myToken,"#coin", "Autotrade start")
 
 # 값초기화
-buy_result, daily_msg, sell_result = None
+buy_result, daily_msg, sell_result = None, None, None
 
 # 자동매매 시작
 while True:
