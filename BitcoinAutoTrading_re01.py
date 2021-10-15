@@ -18,7 +18,7 @@ def get_new_ohlcv(hour='9h'):
     df = pyupbit.get_ohlcv(ticker="KRW-BTC", interval='minute60', count=150)
     df_resampling = df.resample('24H', offset=hour).agg(\
                                     {'open': 'first', 'high': 'max', 'low': 'min', 'close': 'last', 'volume': 'sum'})
-    df_new = df_resampling[-6:-1]
+    df_new = df_resampling[-6:]
     return df_new
 
 def get_balance(ticker):
@@ -48,19 +48,19 @@ buy_result, daily_msg, sell_result = None, None, None
 # 자동매매 시작
 while True:
     try:
-        df = get_new_ohlcv('11h')       # 이거는 한번만 쓰자
         now = datetime.datetime.now()
+        df = get_new_ohlcv('11h')       # 이거는 한번만 쓰자
         start_time = df.index[-1]  # 11:00
         end_time = start_time + datetime.timedelta(days=1)  # 11:00 + 1일
 
         # 구매 비중 구하기
-        range_ratio = (df.iloc[-1]['high'] - df.iloc[-1]['low']) / df.iloc[-1]['close']
+        range_ratio = (df.iloc[-2]['high'] - df.iloc[-2]['low']) / df.iloc[-2]['close']
         buying_ratio = 0.02 / range_ratio    # risk 비중은 0.02 (2%)
         ratio = min([1, round(buying_ratio, 2)])
 
         if start_time < now < end_time - datetime.timedelta(seconds=60):
-            target_price = df.iloc[-1]['close'] + (df.iloc[-1]['high'] - df.iloc[-1]['low']) * 0.4  # k=0.4
-            ma5 = df['close'].rolling(5).mean().iloc[-1]
+            target_price = df.iloc[-2]['close'] + (df.iloc[-2]['high'] - df.iloc[-2]['low']) * 0.4  # k=0.4
+            ma5 = df['close'].rolling(5).mean().iloc[-2]
             current_price = get_current_price("KRW-BTC")
             daily_msg, sell_result = None, None     # 각 초기화해주고
             if target_price < current_price and ma5 < current_price:
